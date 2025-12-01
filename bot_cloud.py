@@ -51,7 +51,16 @@ def scrape():
         try:
             title = item.find("div", class_="featured-details").get_text(strip=True)
             price_txt = item.find("div", class_="featured-price").get_text(strip=True)
-            price = int(price_txt.replace("€", "").replace(" ", "").strip())
+            price = int(
+                price_txt
+                .lower()
+                .replace("€", "")
+                .replace(" ", "")
+                .replace("cc", "")
+                .replace(",", "")
+                .strip()
+)
+
             link = "https://www.inli.fr" + item.find("a")["href"]
 
             if "2 pièces" not in title.lower() and "t2" not in title.lower():
