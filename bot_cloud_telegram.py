@@ -3,10 +3,6 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-# ---------------------------
-# CONFIG
-# ---------------------------
-
 URL = "https://www.inli.fr/locations/offres/val-doise-departement_d:95"
 BUDGET_MAX = 950
 
@@ -14,11 +10,6 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
 SEEN = set()
-
-
-# ---------------------------
-# TELEGRAM SENDER
-# ---------------------------
 
 def send_telegram(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -29,16 +20,10 @@ def send_telegram(message):
     except Exception as e:
         print("Erreur Telegram :", e)
 
-
-# ---------------------------
-# SCRAPER
-# ---------------------------
-
 def fetch_page():
     headers = {"User-Agent": "Mozilla/5.0"}
     r = requests.get(URL, headers=headers)
     return BeautifulSoup(r.text, "html.parser")
-
 
 def scrape():
     print("🔍 Analyse de la page…")
@@ -52,7 +37,6 @@ def scrape():
             title = item.find("div", class_="featured-details").get_text(strip=True)
             price_txt = item.find("div", class_="featured-price").get_text(strip=True)
 
-            # Nettoyage du prix
             price = int(
                 price_txt.lower()
                 .replace("€", "")
@@ -64,7 +48,6 @@ def scrape():
 
             link = "https://www.inli.fr" + item.find("a")["href"]
 
-            # Détection T2
             if "2 pièces" not in title.lower() and "t2" not in title.lower():
                 continue
 
@@ -84,14 +67,8 @@ def scrape():
         except Exception as e:
             print("Erreur extraction :", e)
 
-
-# ---------------------------
-# LOOP
-# ---------------------------
-
 if __name__ == "__main__":
     print("🚀 INLI BOT V3 — Notifications Telegram — Mode Cloud Railway")
-
     while True:
         scrape()
-        time.sleep(300)  # toutes les 5 minutes
+        time.sleep(300)
