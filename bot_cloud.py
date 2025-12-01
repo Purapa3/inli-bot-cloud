@@ -1,68 +1,70 @@
+import os
+import time
 import requests
 from bs4 import BeautifulSoup
-import time
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+
+# ---------------------------
+# CONFIG
+# ---------------------------
 
 URL = "https://www.inli.fr/locations/offres/val-doise-departement_d:95"
 BUDGET_MAX = 950
-EMAIL_SENDER = "mouaddahim@gmail.com"
-EMAIL_TO = "mouaddahim@gmail.com"
-APP_PASSWORD = "vzbp iqar udtk coiv"
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
 
 SEEN = set()
 
-def send_email(title, price, link):
-    msg = MIMEMultipart()
-    msg["Subject"] = f"Nouveau T2 détecté ({price}€)"
-    msg["From"] = EMAIL_SENDER
-    msg["To"] = EMAIL_TO
 
-    html = f"""<h3>Nouveau logement T2</h3>
-<p><b>{title}</b></p>
-<p>Prix : <b>{price}€</b></p>
-<p>Lien : <a href='{link}'>Voir l’annonce</a></p>"""
+# ---------------------------
+# TELEGRAM SENDER
+# ---------------------------
 
-    msg.attach(MIMEText(html, "html"))
-
+def send_telegram(message):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    payload = {"chat_id": CHAT_ID, "text": message}
     try:
-        server = smtplib.SMTP_SSL("smtp.gmail.com", 465)
-        server.login(EMAIL_SENDER, APP_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print("Email envoyé !")
+        r = requests.post(url, json=payload)
+        print("📩 Telegram envoyé :", r.text)
     except Exception as e:
-        print("Erreur email :", e)
+        print("Erreur Telegram :", e)
+
+
+# ---------------------------
+# SCRAPER
+# ---------------------------
 
 def fetch_page():
     headers = {"User-Agent": "Mozilla/5.0"}
     r = requests.get(URL, headers=headers)
     return BeautifulSoup(r.text, "html.parser")
 
+
 def scrape():
-    print("Analyse de la page…")
+    print("🔍 Analyse de la page…")
     soup = fetch_page()
 
     items = soup.find_all("div", class_="featured-item")
-    print("Annonces trouvées :", len(items))
+    print("📌 Annonces trouvées :", len(items))
 
     for item in items:
         try:
             title = item.find("div", class_="featured-details").get_text(strip=True)
             price_txt = item.find("div", class_="featured-price").get_text(strip=True)
+
+            # Nettoyage du prix
             price = int(
-                price_txt
-                .lower()
+                price_txt.lower()
                 .replace("€", "")
                 .replace(" ", "")
                 .replace("cc", "")
                 .replace(",", "")
                 .strip()
-)
+            )
 
             link = "https://www.inli.fr" + item.find("a")["href"]
 
+            # Détection T2
             if "2 pièces" not in title.lower() and "t2" not in title.lower():
                 continue
 
@@ -72,16 +74,24 @@ def scrape():
             if link in SEEN:
                 continue
 
-            print("NOUVEAU T2 :", title, price, link)
-            send_email(title, price, link)
+            message = f"🏡 Nouveau T2 détecté !\n\n{title}\nPrix : {price}€\n\n🔗 {link}"
+
+            print("✨ NOUVEAU T2 :", title, price)
+            send_telegram(message)
+
             SEEN.add(link)
 
         except Exception as e:
             print("Erreur extraction :", e)
 
+
+# ---------------------------
+# LOOP
+# ---------------------------
+
 if __name__ == "__main__":
-    print("INLI BOT V3 — Mode Cloud Railway actif")
+    print("🚀 INLI BOT V3 — Notifications Telegram — Mode Cloud Railway")
 
     while True:
         scrape()
-        time.sleep(300)
+        time.sleep(300)  # toutes les 5 minutes
