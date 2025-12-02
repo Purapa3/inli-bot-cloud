@@ -1,2 +1,3 @@
-worker: python3 bot_cloud_telegram.py
+worker: python bot_cloud_telegram.py
+
 
