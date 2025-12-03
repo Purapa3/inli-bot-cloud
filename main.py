@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 
 URL = "https://www.inli.fr/locations/offres/val-doise-departement_d:95"
-BUDGET_MAX = 950
+BUDGET_MAX = 1300
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
