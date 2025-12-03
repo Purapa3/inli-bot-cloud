@@ -72,6 +72,7 @@ def scrape():
 
 if __name__ == "__main__":
     print("🚀 INLI BOT V3 — Notifications Telegram — Railway")
+    send_telegram("🚀 Le bot est lancé depuis Railway !")
     while True:
         scrape()
         time.sleep(300)  # Analyse toutes les 5 minutes
