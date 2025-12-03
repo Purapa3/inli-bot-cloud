@@ -14,16 +14,15 @@ SEEN = set()
 def send_telegram(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
     payload = {"chat_id": CHAT_ID, "text": message}
-    try:
-        r = requests.post(url, json=payload)
-        print("📩 Telegram envoyé :", r.text)
-    except Exception as e:
-        print("Erreur Telegram :", e)
+    r = requests.post(url, json=payload)
+    print("📩 Réponse Telegram :", r.text)
+
 
 def fetch_page():
     headers = {"User-Agent": "Mozilla/5.0"}
     r = requests.get(URL, headers=headers)
     return BeautifulSoup(r.text, "html.parser")
+
 
 def scrape():
     print("🔍 Analyse de la page…")
@@ -57,7 +56,10 @@ def scrape():
             if link in SEEN:
                 continue
 
-            message = f"🏡 Nouveau T2 détecté !\n\n{title}\nPrix : {price}€\n\n🔗 {link}"
+            message = (
+                f"🏡 Nouveau T2 détecté !\n\n"
+                f"{title}\nPrix : {price}€\n\n🔗 {link}"
+            )
 
             print("✨ NOUVEAU T2 :", title, price)
             send_telegram(message)
@@ -67,19 +69,9 @@ def scrape():
         except Exception as e:
             print("Erreur extraction :", e)
 
+
 if __name__ == "__main__":
-    print("🚀 INLI BOT V3 — Notifications Telegram — Mode Cloud Railway")
+    print("🚀 INLI BOT V3 — Notifications Telegram — Railway")
     while True:
         scrape()
-        time.sleep(300)
-
-while True:
-    analyser_page()   # ta fonction d’analyse
-    time.sleep(60)    # attends 1 min avant la prochaine analyse
-
-import time
-
-while True:
-    analyser_page()   # ou le nom de ta fonction principale
-    time.sleep(60)    # attends 1 minute avant de recommencer
-
+        time.sleep(300)  # Analyse toutes les 5 minutes
