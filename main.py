@@ -77,3 +77,9 @@ while True:
     analyser_page()   # ta fonction d’analyse
     time.sleep(60)    # attends 1 min avant la prochaine analyse
 
+import time
+
+while True:
+    analyser_page()   # ou le nom de ta fonction principale
+    time.sleep(60)    # attends 1 minute avant de recommencer
+
