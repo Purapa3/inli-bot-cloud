@@ -72,3 +72,8 @@ if __name__ == "__main__":
     while True:
         scrape()
         time.sleep(300)
+
+while True:
+    analyser_page()   # ta fonction d’analyse
+    time.sleep(60)    # attends 1 min avant la prochaine analyse
+
