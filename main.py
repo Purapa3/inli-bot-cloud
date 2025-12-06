@@ -75,4 +75,4 @@ if __name__ == "__main__":
     send_telegram("🚀 Le bot est lancé depuis Railway !")
     while True:
         scrape()
-        time.sleep(300)  # Analyse toutes les 5 minutes
+        time.sleep(60)  # Analyse toutes les 5 minutes
